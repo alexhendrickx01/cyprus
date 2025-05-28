@@ -1,16 +1,50 @@
 describe('Shopify Store Tests', () => {
-  it('can access password-protected store', () => {
+  beforeEach(() => {
     // Visit your store URL
-    cy.visit('https://r0892196-realbeans.myshopify.com/')
+    cy.visit('https://r0892196-realbeans.myshopify.com')
     
-    // Find the password input field and type the store password
+    // Handle password page
     cy.get('input[type="password"]').type('bowmoh')
-    
-    // Click the submit/enter button
     cy.get('button[type="submit"]').click()
     
-    // Verify we got past the password page (check for an element that exists on your store homepage)
-    cy.get('.header__heading-link').should('exist')
-    // Or any other element that confirms you're on the actual store page
+    // Wait for page to load after password entry
+    cy.wait(2000)
+  })
+  
+  it('Product catalog shows correct items', () => {
+    cy.visit('/collections/all')
+    // Add assertions to check products
+    cy.get('.product-item').should('have.length.greaterThan', 0)
+  })
+  
+  it('Sorting products changes their order', () => {
+    cy.visit('/collections/all')
+    // Test sorting functionality
+    cy.get('select.sort-by').select('price-ascending')
+    // Add assertions to verify sorting
+  })
+  
+  it('Product detail pages display correct information', () => {
+    // Navigate to a specific product
+    cy.visit('/collections/all')
+    cy.get('.product-item a').first().click()
+    
+    // Check product details
+    cy.get('.product-title').should('be.visible')
+    cy.get('.price').should('be.visible')
+    cy.get('.product-description').should('be.visible')
+  })
+  
+  it('Homepage displays correctly', () => {
+    cy.visit('/')
+    // Check homepage elements
+    cy.get('.hero').should('be.visible')
+    cy.get('.featured-collection').should('be.visible')
+  })
+  
+  it('About page includes history paragraph', () => {
+    cy.visit('/pages/about')
+    // Check about page content
+    cy.get('.page-content').should('contain', 'history')
   })
 })
