@@ -11,19 +11,24 @@ describe('Shopify Store Tests', () => {
     cy.wait(2000)
 
 
-    cy.get('[aria-label="Cookie Banner"], .cookie-banner, #cookie-banner, .privacy-banner', { timeout: 10000 })
-      .then($banner => {
-        if ($banner.length > 0) {
-          // Look for the accept button within the banner
-          cy.wrap($banner)
-            .find('button, .accept-button, [aria-label="Accept"], [data-action="accept-cookies"]')
-            .first()
-            .click();
-          
-          // Wait for the banner to disappear
-          cy.wait(1000);
-        }
-      });
+    // Handle Shopify cookie consent popup
+    cy.get('body').then($body => {
+      // Check for standard Shopify cookie banner
+      if ($body.find('#shopify-privacy-banner').length > 0) {
+        cy.get('#shopify-privacy-banner button[data-testid="accept-privacy-banner"]').click();
+      }
+      // Check for Dawn theme cookie banner
+      else if ($body.find('.cookie-banner').length > 0) {
+        cy.get('.cookie-banner__button').click();
+      }
+      // Check for other common Shopify cookie banner implementations
+      else if ($body.find('[data-cc-banner]').length > 0) {
+        cy.get('[data-cc-accept-button]').click();
+      }
+    });
+    
+    // Wait for banner to disappear
+    cy.wait(1000);
   })
   
   it('Product catalog shows correct items', () => {
